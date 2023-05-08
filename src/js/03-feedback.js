@@ -1,58 +1,38 @@
 import throttle from 'lodash.throttle';
 
-const values = document.querySelector('.feedback-form');
-const childrens = values.children;
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const input = document.querySelector('input');
+const textArea = document.querySelector('textarea');
+const boton = document.querySelector('button')
 
 
-for (let element of childrens) {
-    if (element.firstElementChild != null) {
-        element.firstElementChild.classList.add(`feedback-form__${element.firstElementChild.getAttribute('name')}`);
-    } else {
-        element.classList.add(`feedback-form__${element.getAttribute('type')}`);
-    };
-
-};
+const formData = JSON.parse(localStorage.getItem('feedback-form-state'));
+if (formData) {
+  input.value = formData.email;
+  textArea.value = formData.message;
+}
 
 
-const [emailSelector, messageSelector, btnSelector] = values.querySelectorAll('.feedback-form__email, .feedback-form__message, .feedback-form__submit');
+input.addEventListener('input', throttle(handleFormInput, 500));
+
+textArea.addEventListener('input', throttle(handleFormInput, 500));
+
+function handleFormInput(event) {
+  const email = input.value;
+  const message = textArea.value;
+  const formData = {
+    email,
+    message,
+  };
+  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+}
 
 
-
-let formValues = {
-    email: "fakemail@fake.com",
-    message: "new001",
-};
-
-
-const formValueSaved = localStorage.getItem("feedback-form-state");
-const feedback = JSON.parse(formValueSaved);
-if (formValueSaved != null) {
-    emailSelector.value = feedback.email;
-    messageSelector.value = feedback.message;
-};
-
-
-const setFormValues = () => {
-    formValues = { email: emailSelector.value, message: messageSelector.value };
-    localStorage.setItem('feedback-form-state', JSON.stringify(formValues));
-};
-
-
-const removePrintFormValues = (event) => {
-    if (emailRegex.test(emailSelector.value)) {        
-        event.preventDefault();
-        console.log(formValues);
-        emailSelector.value = '';
-        messageSelector.value = ''; 
-        localStorage.removeItem('feedback-form-state');
-    } else {
-        alert('El correo no tiene formato adecuado')
-    };
-};
-
-
-
-values.addEventListener('input', throttle(setFormValues, 500) );
-
-btnSelector.addEventListener('click', removePrintFormValues);
+boton.addEventListener(
+  'click',
+  throttle(() => {
+    const email = '';
+    const message = '';
+    const formData = { email, message };
+    localStorage.setItem('feedback-form-state', JSON.stringify(formData));
+  }, 500)
+);
